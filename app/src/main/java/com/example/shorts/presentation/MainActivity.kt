@@ -30,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.shorts.App
+import com.example.shorts.R
 import com.example.shorts.domain.model.FirstRunStateModel
 import com.example.shorts.domain.model.Timestamps
 import com.example.shorts.presentation.Background
