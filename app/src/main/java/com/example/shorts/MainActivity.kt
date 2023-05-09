@@ -21,64 +21,89 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
+import com.example.shorts.domain.model.FirstRunStateModel
+import com.example.shorts.domain.model.Timestamps
+import com.example.shorts.presentation.Background
+import com.example.shorts.tools.DELAY_1000
+import com.example.shorts.ui.theme.ShortsTheme
 
 class MainActivity : ComponentActivity() {
-
     private val handler = Handler(Looper.getMainLooper())
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .paint(
-                        painter = painterResource(id = R.drawable.background),
-                        contentScale = ContentScale.FillBounds
-                    ),
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                StartItem(handler)
-                StopItem()
+            ShortsTheme {
+                val data = App.instance.timestamps.getTimestamps().copy()
+                val timestamps = remember { mutableStateOf(data) }
+                val firstRunStateModel = remember { mutableStateOf(FirstRunStateModel()) }
+                val clickEnable = remember { mutableStateOf(true) }
+
+                Background()
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    StartButton(handler,clickEnable,timestamps,firstRunStateModel)
+                    StopItem(clickEnable)
+                }
             }
+
+
         }
 
     }
 }
 
-//@Preview(showBackground = true)
+
 @Composable
-private fun StartItem(handler: Handler) {
-    val current = remember { mutableStateOf(126) }
-    val previous = remember { mutableStateOf(108) }
-    val oldest = remember { mutableStateOf(101) }
-    val isFirstUpdate = remember { mutableStateOf(false) }
-
-
-
-
+private fun StopItem(clickEnable: MutableState<Boolean>) {
     Card(
-        modifier = Modifier
-            .padding(32.dp)
-            .clickable {
-                if (isFirstUpdate.value) {
-                    isFirstUpdate.value = false
-                    ++current.value
-                }
-            },
+        modifier = Modifier.clickable { onClickStop(clickEnable = clickEnable)},
+        shape = RoundedCornerShape(8.dp),
+        backgroundColor = Color.Cyan,
+        elevation = 5.dp,
+    ) {
+        Text(
+            text = "Stop",
+            modifier = Modifier.padding(start = 22.dp, top = 12.dp, end = 22.dp, bottom = 12.dp)
+        )
+    }
+}
+
+
+
+private fun onClickStop(clickEnable: MutableState<Boolean>) {
+    clickEnable.value = true
+}
+
+@Composable
+fun StartButton(
+    handler: Handler,
+    clickEnable: MutableState<Boolean>,
+    timestamps: MutableState<Timestamps>,
+    firstRun: MutableState<FirstRunStateModel>,
+) {
+    Card(
+        modifier = Modifier.padding(32.dp).clickable {
+            if (firstRun.value.isFirst) {
+                onClickStart(
+                    handler,
+                    clickEnable,
+                    timestamps,
+                )
+                Log.d("log", "++++firstRun++++")
+            } else Log.d("log", "++++Button is blocked++++")
+        },
         shape = RoundedCornerShape(10.dp),
         elevation = 15.dp,
     ) {
@@ -94,11 +119,11 @@ private fun StartItem(handler: Handler) {
                     verticalArrangement = Arrangement.SpaceBetween,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = "${previous.value}", color = Color.DarkGray, fontSize = 13.sp)
-                    Text(text = "${current.value}", fontSize = 16.sp)
-                    Text(text = "${oldest.value}", color = Color.DarkGray, fontSize = 13.sp)
+                    Text(text = "${timestamps.value.aboveTime}", color = Color.DarkGray, fontSize = 13.sp)
+                    Text(text = "${timestamps.value.currentTime}", fontSize = 17.sp)
+                    Text(text = "${timestamps.value.belowTime}", color = Color.DarkGray, fontSize = 13.sp)
                 }
-                Text(text = "Start exercise", fontSize = 24.sp)
+                Text(text = firstRun.value.text, fontSize = 24.sp)
                 Image(
                     painter = painterResource(id = R.drawable.checked),
                     contentDescription = "check",
@@ -111,17 +136,23 @@ private fun StartItem(handler: Handler) {
     }
 }
 
+private fun onClickStart(
+    handler: Handler,
+    clickEnable: MutableState<Boolean>,
+    timestamps: MutableState<Timestamps>,
+) {
+    clickEnable.value = false
+    handler.post(object : Runnable {
+        override fun run() {
+            if (!clickEnable.value) {
+                timestamps.value.currentTime++
+                Log.d("log", "++++${timestamps.value}++++")
+                handler.postDelayed(this, DELAY_1000)
+            }
+            else {
+                handler.removeCallbacksAndMessages(null)
+            }
+        }
+    })
 
-@Composable
-private fun StopItem() {
-    Card(
-        shape = RoundedCornerShape(8.dp),
-        backgroundColor = Color.Cyan,
-        elevation = 5.dp,
-    ) {
-        Text(
-            text = "Stop",
-            modifier = Modifier.padding(start = 22.dp, top = 12.dp, end = 22.dp, bottom = 12.dp)
-        )
-    }
 }
