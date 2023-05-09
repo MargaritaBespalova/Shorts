@@ -1,4 +1,4 @@
-package com.example.shorts.repository
+package com.example.shorts.data
 
 import com.example.shorts.domain.model.Timestamps
 
