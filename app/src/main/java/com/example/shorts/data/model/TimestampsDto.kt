@@ -1,4 +1,4 @@
-package com.example.shorts.repository.model
+package com.example.shorts.data.model
 
 
 data class TimestampsDto(

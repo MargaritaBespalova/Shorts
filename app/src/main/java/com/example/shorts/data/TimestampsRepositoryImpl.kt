@@ -1,8 +1,8 @@
-package com.example.shorts.repository
+package com.example.shorts.data
 
 import android.content.SharedPreferences
 import com.example.shorts.domain.model.Timestamps
-import com.example.shorts.repository.model.TimestampsDto
+import com.example.shorts.data.model.TimestampsDto
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 

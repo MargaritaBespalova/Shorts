@@ -1,9 +1,7 @@
 package com.example.shorts
 
 import android.app.Application
-import com.example.shorts.domain.model.Timestamps
-import com.example.shorts.repository.TimestampsRepositoryImpl
-import com.example.shorts.repository.model.TimestampsDto
+import com.example.shorts.data.TimestampsRepositoryImpl
 import com.google.gson.Gson
 
 class App: Application() {

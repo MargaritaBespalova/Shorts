@@ -1,4 +1,4 @@
-package com.example.shorts
+package com.example.shorts.presentation
 
 import android.os.Bundle
 import android.os.Handler
