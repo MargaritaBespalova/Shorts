@@ -24,7 +24,7 @@ class TimestampsRepositoryImpl(
     }
 
     override fun clearTimestamps() {
-        TODO("Not yet implemented")
+        sharedPreferences.edit().putString(TIMESTAMPS_KEY, gson.toJson(Timestamps())).apply()
     }
 
 
@@ -34,19 +34,23 @@ class TimestampsRepositoryImpl(
     private fun String.toTimestampsDto(): TimestampsDto =
         gson.fromJson(this, object: TypeToken<TimestampsDto>() {}.type)
 
-    private fun mapToTimestamps(timestamps: TimestampsDto): Timestamps {
+    private fun mapToTimestamps(timestampsDto: TimestampsDto): Timestamps {
         return Timestamps(
-            aboveTime = timestamps.lastTime,
-            currentTime = timestamps.currentTime,
-            belowTime = timestamps.oldestTime,
+            aboveTime = timestampsDto.aboveTime,
+            currentTime = timestampsDto.currentTime,
+            belowTime = timestampsDto.belowTime,
+            retryStart = timestampsDto.retryStart,
+            text = timestampsDto.text,
         )
     }
 
     private fun mapToTimestampsDto(timestamps: Timestamps): TimestampsDto {
         return TimestampsDto(
-            lastTime = timestamps.aboveTime,
+            aboveTime = timestamps.aboveTime,
             currentTime = timestamps.currentTime,
-            oldestTime = timestamps.belowTime,
+            belowTime = timestamps.belowTime,
+            retryStart = timestamps.retryStart,
+            text = timestamps.text,
         )
     }
 }
