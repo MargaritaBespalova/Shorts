@@ -1,9 +1,12 @@
-package com.example.shorts.domain.model
+package com.example.shorts.model.domain
 
-data class Timestamps(
+data class TimeBox(
+
     internal var aboveTime: Int = 0,
     internal var currentTime: Int = 0,
     internal var belowTime: Int = 0,
-    internal var retryStart: Boolean = false,
+
+    internal var firstStart: Boolean = true,
     internal var text: String = "Let's begin",
+    internal var lastExerciseEndTime: Int = 0
 )
