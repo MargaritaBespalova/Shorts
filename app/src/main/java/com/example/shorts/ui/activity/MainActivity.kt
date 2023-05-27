@@ -21,7 +21,7 @@ import org.koin.core.parameter.parametersOf
 class MainActivity : ComponentActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
-    private val viewModel: MainViewModel by viewModel()
+    private val viewModel: MainViewModel by viewModel { parametersOf(handler) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

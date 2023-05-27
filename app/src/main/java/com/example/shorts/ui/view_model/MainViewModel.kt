@@ -14,11 +14,12 @@ import com.example.shorts.utils.DELAY_1000
 
 
 class MainViewModel(
+    private val handler: Handler,
     private val localStorageInteractor: LocalStorageInteractorImpl,
 ): ViewModel() {
 
 
-    private val handler = Handler(Looper.getMainLooper())
+    //private val handler = Handler(Looper.getMainLooper())
     var stopButtonState by mutableStateOf(false)
         private set
     var timeBox by mutableStateOf(localStorageInteractor.getTimeBoxState(key = TIME_BOX_KEY))

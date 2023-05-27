@@ -1,12 +1,13 @@
 package com.example.shorts.di
 
-import androidx.lifecycle.ViewModel
+import android.os.Handler
 import com.example.shorts.ui.view_model.MainViewModel
-import org.koin.androidx.viewmodel.dsl.viewModelOf
-import org.koin.dsl.bind
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val viewModelModule = module {
-
-    viewModelOf(::MainViewModel).bind<ViewModel>()
+    viewModel { (handler: Handler) ->
+        MainViewModel(handler, get())
+    }
 }
+
