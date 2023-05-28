@@ -13,14 +13,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shorts.R
-import com.example.shorts.utils.ENABLE
-import com.example.shorts.utils.toTimeFormat
+import com.example.shorts.utils.FINISHED
 
 @Composable
 fun RecoverTimer(
     time: String,
 ) {
-    if (time != ENABLE) {
+    if (time != FINISHED) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()

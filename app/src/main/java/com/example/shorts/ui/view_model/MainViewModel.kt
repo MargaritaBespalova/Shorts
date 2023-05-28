@@ -6,11 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.shorts.model.domain.TimeBox
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import com.example.shorts.features.recovery_period.domain.api.RecoveryInteractor
 import com.example.shorts.features.recovery_period.model.CompletionStatus
 import com.example.shorts.features.shared_preferences.domain.api.LocalStorageInteractor
 import com.example.shorts.utils.DELAY_1000
-import com.example.shorts.utils.ENABLE
+import com.example.shorts.utils.FINISHED
 import com.example.shorts.utils.toTimeFormat
 
 class MainViewModel(
@@ -22,23 +23,29 @@ class MainViewModel(
 
     var stopButtonState by mutableStateOf(false)
         private set
+    var checkIconState by mutableStateOf(0.2f)
+        private set
     var timeBox by mutableStateOf(
         localStorageInteractor.getDataFromSharedPref(key = TIME_BOX_KEY, defaultValue = TimeBox()))
         private set
-    var recoverTime by mutableStateOf(ENABLE)
+    var recoverTime by mutableStateOf(FINISHED)
         private set
 
-    init { countdownRecoverTime() }
+    init { checkTrainingAvailable() }
 
-    private fun countdownRecoverTime() {
+    private fun checkTrainingAvailable() {
         var time = recoveryInteractor.getRemainingTime(key = COMPLETION_STATUS_KEY)
+        if (time > 0) checkIconState = 1f
         handler.post(object : Runnable {
             override fun run() {
                 if (time > 0) {
                     time -= 1
                     recoverTime = time.toTimeFormat()
                     handler.postDelayed(this, DELAY_1000)
-                } else handler.removeCallbacksAndMessages(null)
+                } else {
+                    handler.removeCallbacksAndMessages(null)
+                    checkIconState = 0.2f
+                }
             }
         })
     }
@@ -46,20 +53,29 @@ class MainViewModel(
     private fun visibilityStopButton() { stopButtonState = !stopButtonState }
 
     fun startCountUpTrainingTime() {
-        if (recoverTime == ENABLE) {
-            visibilityStopButton()
-            handler.post(object : Runnable {
-                override fun run() {
-                    timeBox = timeBox.copy(currentTime = timeBox.currentTime + 1)
-                    handler.postDelayed(this, DELAY_1000)
-                }
-            })
+        if (recoverTime == FINISHED) {
+            if (timeBox.firstStart) {
+                visibilityStopButton()
+                incrementTime()
+            }
+        } else {
+            //показать диалог с фразой
+            Unit
         }
     }
+
+    private fun incrementTime() {
+        handler.post(object : Runnable {
+            override fun run() {
+                timeBox = timeBox.copy(currentTime = timeBox.currentTime + 1)
+                handler.postDelayed(this, DELAY_1000)
+            }
+        })
+    }
+
     fun stopTraining() {
         visibilityStopButton()
         handler.removeCallbacksAndMessages(null)
-        //visibilityDoneMark()
         localStorageInteractor.saveDataInSharedPref(key = TIME_BOX_KEY, data = timeBox)
         visibilityTimer()
 
@@ -75,7 +91,6 @@ class MainViewModel(
     }
 
     private fun visibilityTimer() {
-        //showTimer()
         recoveryInteractor.saveDataInSharedPref(
             key = COMPLETION_STATUS_KEY,
             data = CompletionStatus(
@@ -84,8 +99,7 @@ class MainViewModel(
                 newWorkoutStage = true
             )
         )
-        //recoverTime = recoveryInteractor.getRemainingTime(key = COMPLETION_STATUS_KEY)
-        countdownRecoverTime()
+        checkTrainingAvailable()
     }
 
     private fun showTimer() {
