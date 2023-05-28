@@ -29,13 +29,14 @@ class MainActivity : ComponentActivity() {
                 val timeBox = viewModel.timeBox
                 val showStopButton = viewModel.stopButtonState
                 val time = viewModel.recoverTime
+                val checkIconState = viewModel.checkIconState
                 Background()
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.SpaceEvenly,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    StartButton(viewModel, handler, showStopButton, timeBox, time)
+                    StartButton(viewModel, handler, showStopButton, timeBox, time, checkIconState)
                     StopButton(showStopButton,viewModel)
                 }
             }

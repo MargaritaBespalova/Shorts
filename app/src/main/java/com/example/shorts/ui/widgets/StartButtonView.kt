@@ -19,15 +19,15 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shorts.R
 import com.example.shorts.model.domain.TimeBox
-import com.example.shorts.utils.DELAY_1000
 import com.example.shorts.ui.theme.Orange
 import com.example.shorts.ui.view_model.MainViewModel
+import com.example.shorts.utils.DELAY_1000
 
 @Composable
 fun StartButton(
@@ -35,29 +35,23 @@ fun StartButton(
     handler: Handler,
     showStopButton: Boolean,
     timeBox: TimeBox,
-    recoverTime: String
+    recoverTime: String,
+    checkIconState: Float,
 ) {
     Column(
-        modifier = Modifier
-            .padding(32.dp)
+        modifier = Modifier.padding(32.dp)
     ) {
         Card(
-            modifier = Modifier
-                //.padding(32.dp)
-                .clickable {
-                    if (timeBox.firstStart) {
-                        //viewModel.changeVisibleState()
-                        onClickGo(viewModel, handler, showStopButton, timeBox)
-                    } else {
-                        //viewModel.changeVisibleState()
-                        //onClickStart(handler, showStopButton, timeBox)
-                    }
-                },
+            modifier = Modifier.clickable { viewModel.startCountUpTrainingTime() },
             shape = RoundedCornerShape(10.dp),
             elevation = 15.dp,
         ) {
-            Box(modifier = Modifier
-                .background(if (timeBox.currentTime % 8 in (0..1)) Orange else Color.Cyan)
+            Box(
+                modifier = Modifier.background(
+                if (timeBox.currentTime % 8 in (0..1))
+                    Orange
+                else
+                    Color.Cyan)
             ) {
                 Row(
                     modifier = Modifier
@@ -75,10 +69,20 @@ fun StartButton(
                         Text(text = "${timeBox.belowTime}", color = Color.DarkGray, fontSize = 13.sp)
                     }
                     Text(text = timeBox.text, fontSize = 24.sp)
+//                    Image(
+//                        painter = painterResource(id = R.drawable.checked),
+//                        contentDescription = "check",
+//                        modifier = Modifier.size(32.dp),
+//                        alignment = Alignment.CenterEnd,
+//                    )
                     Image(
                         painter = painterResource(id = R.drawable.checked),
                         contentDescription = "check",
-                        modifier = Modifier.size(32.dp),
+                        modifier = Modifier
+                            .size(32.dp)
+                            .graphicsLayer {
+                                this.alpha = checkIconState
+                            },
                         alignment = Alignment.CenterEnd,
                     )
                 }
@@ -88,34 +92,6 @@ fun StartButton(
     }
 }
 
-private fun onClickGo(
-    viewModel: MainViewModel,
-    handler: Handler,
-    showStopButton: Boolean,
-    timeBox: TimeBox,
-) {
-    viewModel.startCountUpTrainingTime()
-    //clickEnable.value = false
-//    handler.post(object : Runnable {
-//        override fun run() {
-//            if (showStopButton) {
-//
-//                timeBox = timeBox.copy(currentTime = timeBox.currentTime + 1)
-//                handler.postDelayed(this, DELAY_1000)
-//            } else {
-//                handler.removeCallbacksAndMessages(null)
-//                timeBox.value = timeBox.value.copy(
-//                    aboveTime = (timeBox.value.currentTime * 0.9).toInt(),
-//                    currentTime = (timeBox.value.currentTime * 0.8).toInt(),
-//                    belowTime = timeBox.value.currentTime + 3,
-//                    firstStart = true,
-//                    text = "Start exercise",
-//                )
-//                //App.instance.timestamps.addTimestamps(timeBox.value)
-//            }
-//        }
-//    })
-}
 
 private fun onClickStart(
     handler: Handler,
