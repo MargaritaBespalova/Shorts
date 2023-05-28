@@ -9,26 +9,16 @@ class LocalStorageInteractorImpl(
     private val localStorage: LocalStorage
 ): LocalStorageInteractor {
 
-
-    override fun getBooleanState(key: String): Boolean {
-        return localStorage.readData(key = key, defaultValue = false)
+    override fun <T> getDataFromSharedPref(key: String, defaultValue: T): T {
+        return localStorage.readData(key = key, defaultValue = defaultValue)
     }
 
-    override fun saveBooleanState(key: String, nightThemeState: Boolean) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getTimeBoxState(key: String): TimeBox {
-        return localStorage.readData(key = key, defaultValue = TimeBox())
-    }
-
-    override fun saveTimeBoxState(key: String, timeBoxState: TimeBox) {
-        localStorage.writeData(key = key, data = timeBoxState)
+    override fun <T> saveDataInSharedPref(key: String, data: T) {
+        localStorage.writeData(key = key, data = data)
     }
 
     override fun clearPreferencesByKey(key: String) {
         localStorage.writeData(key = key, data = null)
     }
-
 
 }

@@ -22,7 +22,7 @@ fun StopButton(
         Card(
             modifier = Modifier
                 .combinedClickable(
-                    onClick = { viewModel.stopExercise() },
+                    onClick = { viewModel.stopTraining() },
                     onLongClick = { viewModel.onLongPress() },
                 ),
             shape = RoundedCornerShape(8.dp),

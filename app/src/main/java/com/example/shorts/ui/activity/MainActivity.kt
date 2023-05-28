@@ -28,13 +28,14 @@ class MainActivity : ComponentActivity() {
             ShortsTheme {
                 val timeBox = viewModel.timeBox
                 val showStopButton = viewModel.stopButtonState
+                val time = viewModel.recoverTime
                 Background()
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.SpaceEvenly,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    StartButton(viewModel, handler, showStopButton, timeBox)
+                    StartButton(viewModel, handler, showStopButton, timeBox, time)
                     StopButton(showStopButton,viewModel)
                 }
             }

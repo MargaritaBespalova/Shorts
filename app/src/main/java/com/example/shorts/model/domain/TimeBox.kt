@@ -8,5 +8,4 @@ data class TimeBox(
 
     internal var firstStart: Boolean = true,
     internal var text: String = "Let's begin",
-    internal var lastExerciseEndTime: Int = 0
 )

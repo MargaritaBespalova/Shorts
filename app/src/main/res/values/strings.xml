@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Shorts</string>
+    <string name="app_name" translatable="false">Shorts</string>
+    <string name="restore_energy">Restore your energy</string>
 </resources>

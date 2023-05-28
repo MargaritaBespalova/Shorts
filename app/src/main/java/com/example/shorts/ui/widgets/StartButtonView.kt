@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shorts.R
@@ -34,49 +35,56 @@ fun StartButton(
     handler: Handler,
     showStopButton: Boolean,
     timeBox: TimeBox,
+    recoverTime: String
 ) {
-    Card(
+    Column(
         modifier = Modifier
             .padding(32.dp)
-            .clickable {
-                if (timeBox.firstStart) {
-                    //viewModel.changeVisibleState()
-                    onClickGo(viewModel, handler, showStopButton, timeBox)
-                } else {
-                    //viewModel.changeVisibleState()
-                    //onClickStart(handler, showStopButton, timeBox)
-                }
-            },
-        shape = RoundedCornerShape(10.dp),
-        elevation = 15.dp,
     ) {
-        Box(modifier = Modifier
-            .background(if (timeBox.currentTime % 8 in (0..1)) Orange else Color.Cyan)
+        Card(
+            modifier = Modifier
+                //.padding(32.dp)
+                .clickable {
+                    if (timeBox.firstStart) {
+                        //viewModel.changeVisibleState()
+                        onClickGo(viewModel, handler, showStopButton, timeBox)
+                    } else {
+                        //viewModel.changeVisibleState()
+                        //onClickStart(handler, showStopButton, timeBox)
+                    }
+                },
+            shape = RoundedCornerShape(10.dp),
+            elevation = 15.dp,
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, top = 4.dp, end = 16.dp, bottom = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Box(modifier = Modifier
+                .background(if (timeBox.currentTime % 8 in (0..1)) Orange else Color.Cyan)
             ) {
-                Column(
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, top = 4.dp, end = 16.dp, bottom = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "${timeBox.aboveTime}", color = Color.DarkGray, fontSize = 13.sp)
-                    Text(text = "${timeBox.currentTime}", fontSize = 17.sp)
-                    Text(text = "${timeBox.belowTime}", color = Color.DarkGray, fontSize = 13.sp)
+                    Column(
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "${timeBox.aboveTime}", color = Color.DarkGray, fontSize = 13.sp)
+                        Text(text = "${timeBox.currentTime}", fontSize = 17.sp)
+                        Text(text = "${timeBox.belowTime}", color = Color.DarkGray, fontSize = 13.sp)
+                    }
+                    Text(text = timeBox.text, fontSize = 24.sp)
+                    Image(
+                        painter = painterResource(id = R.drawable.checked),
+                        contentDescription = "check",
+                        modifier = Modifier.size(32.dp),
+                        alignment = Alignment.CenterEnd,
+                    )
                 }
-                Text(text = timeBox.text, fontSize = 24.sp)
-                Image(
-                    painter = painterResource(id = R.drawable.checked),
-                    contentDescription = "check",
-                    modifier = Modifier.size(32.dp),
-                    alignment = Alignment.CenterEnd,
-                )
             }
         }
+        RecoverTimer(time = recoverTime)
     }
 }
 
@@ -86,7 +94,7 @@ private fun onClickGo(
     showStopButton: Boolean,
     timeBox: TimeBox,
 ) {
-    viewModel.startIncrement()
+    viewModel.startCountUpTrainingTime()
     //clickEnable.value = false
 //    handler.post(object : Runnable {
 //        override fun run() {
