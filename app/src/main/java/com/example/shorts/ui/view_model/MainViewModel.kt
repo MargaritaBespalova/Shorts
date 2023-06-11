@@ -1,29 +1,34 @@
 package com.example.shorts.ui.view_model
 
+import android.app.Application
 import android.os.Handler
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
-import com.example.shorts.model.domain.TimeBox
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.AndroidViewModel
+import com.example.shorts.R
 import com.example.shorts.features.recovery_period.domain.api.RecoveryInteractor
 import com.example.shorts.features.recovery_period.model.CompletionStatus
-import com.example.shorts.features.shared_preferences.domain.api.LocalStorageInteractor
+import com.example.shorts.features.storage.domain.api.LocalStorageInteractor
+import com.example.shorts.features.storage.domain.model.TimeBox
 import com.example.shorts.utils.DELAY_1000
 import com.example.shorts.utils.FINISHED
 import com.example.shorts.utils.toTimeFormat
 
+const val TAG = "qqq"
 class MainViewModel(
     private val handler: Handler,
     private val localStorageInteractor: LocalStorageInteractor,
     private val recoveryInteractor: RecoveryInteractor,
-): ViewModel() {
+    private val application: Application,
+): AndroidViewModel(application) {
 
 
+    var startPhrase by mutableStateOf(application.getString(R.string.greeting))
+        private set
     var stopButtonState by mutableStateOf(false)
         private set
-    var checkIconState by mutableStateOf(0.2f)
+    var checkIconState by mutableStateOf(0.1f)
         private set
     var timeBox by mutableStateOf(
         localStorageInteractor.getDataFromSharedPref(key = TIME_BOX_KEY, defaultValue = TimeBox()))
@@ -34,90 +39,163 @@ class MainViewModel(
     init { checkTrainingAvailable() }
 
     private fun checkTrainingAvailable() {
-        var time = recoveryInteractor.getRemainingTime(key = COMPLETION_STATUS_KEY)
-        if (time > 0) checkIconState = 1f
+        var restTime = recoveryInteractor.getRecoverTime(key = COMPLETION_STATUS_KEY)
+        if (restTime > 0) {
+            isTrainingDone(done = true)
+        }
         handler.post(object : Runnable {
             override fun run() {
-                if (time > 0) {
-                    time -= 1
-                    recoverTime = time.toTimeFormat()
+                if (restTime > 0) {
+                    restTime -= 1
+                    recoverTime = restTime.toTimeFormat()
                     handler.postDelayed(this, DELAY_1000)
                 } else {
                     handler.removeCallbacksAndMessages(null)
-                    checkIconState = 0.2f
+                    isTrainingDone(done = false)
                 }
             }
         })
     }
 
-    private fun visibilityStopButton() { stopButtonState = !stopButtonState }
+    fun getText(): String {
+        return if (timeBox.firstStart) application.getString(R.string.stop)
+        else application.getString(R.string.need_rest)
+    }
 
-    fun startCountUpTrainingTime() {
-        if (recoverTime == FINISHED) {
-            if (timeBox.firstStart) {
-                visibilityStopButton()
-                incrementTime()
-            }
+    private fun isTrainingDone(done: Boolean) {
+        if (done) {
+            startPhrase = application.getString(R.string.done)
+            checkIconState = 1f
         } else {
-            //показать диалог с фразой
-            Unit
+            startPhrase = application.getString(R.string.start)
+            checkIconState = 0.1f
         }
     }
 
-    private fun incrementTime() {
+    private fun visibilityStopButton() {
+        stopButtonState = !stopButtonState
+    }
+
+    fun startTraining() {
+        if (recoverTime == FINISHED) {
+            visibilityStopButton()
+            if (timeBox.firstStart) {
+                firstTraining()
+            } else {
+                standardTraining()
+            }
+        }
+    }
+
+    fun stopFirstTraining() {
+        createAndSaveNewTrainingPlan(timeBox.firstStart)
+        stopTrainingAndRest(newTrainingStage = false)
+    }
+
+    private fun firstTraining() {
         handler.post(object : Runnable {
             override fun run() {
                 timeBox = timeBox.copy(currentTime = timeBox.currentTime + 1)
+                startPhrase = modifyPrompt(timeBox.currentTime)
                 handler.postDelayed(this, DELAY_1000)
             }
         })
     }
 
-    fun stopTraining() {
-        visibilityStopButton()
-        handler.removeCallbacksAndMessages(null)
-        localStorageInteractor.saveDataInSharedPref(key = TIME_BOX_KEY, data = timeBox)
-        visibilityTimer()
-
-
-//        tempTimeBox = timeBox.copy(
-//            aboveTime = (timeBox.currentTime * 0.9).toInt(),
-//            currentTime = (timeBox.currentTime * 0.8).toInt(),
-//            belowTime = timeBox.currentTime + 3,
-//            firstStart = false,
-//            text = "Start exercise",
-//            lastExerciseEndTime = (System.currentTimeMillis() / 3600000).toInt()
-//        )
+    private fun standardTraining() {
+        val lastCurrentTime = timeBox.currentTime
+        handler.post(object : Runnable {
+            override fun run() {
+                if (timeBox.currentTime != 0) {
+                    timeBox = timeBox.copy(currentTime = timeBox.currentTime - 1)
+                    startPhrase = modifyPrompt(timeBox.currentTime)
+                    handler.postDelayed(this, DELAY_1000)
+                }
+                else if (lastCurrentTime > timeBox.aboveTime && lastCurrentTime >timeBox.belowTime) {
+                    createAndSaveNewTrainingPlan(timeBox.firstStart)
+                    stopTrainingAndRest(newTrainingStage = true)
+                }
+                else {
+                    fixAndSaveTrainingPlan()
+                    stopTrainingAndRest(newTrainingStage = false)
+                }
+            }
+        })
     }
 
-    private fun visibilityTimer() {
+    private fun modifyPrompt(time: Int): String {
+        return if (time % 8 == 7) application.getString(R.string.do_it)
+        else application.getString(R.string.stay)
+    }
+
+    private fun stopTrainingAndRest(newTrainingStage: Boolean) {
+        visibilityStopButton()
+        handler.removeCallbacksAndMessages(null)
+        startRecoveryTimer(newTrainingStage)
+    }
+
+    fun onLongPress() {
+        stopTrainingAndRest(newTrainingStage = false)
+        localStorageInteractor.clearPreferencesByKey(key = TIME_BOX_KEY)
+        timeBox = TimeBox()
+    }
+
+    private fun createAndSaveNewTrainingPlan(firstTraining: Boolean) {
+        if (firstTraining) {
+            timeBox.firstStart = false
+            createNewTrainingPlan(timeBox.currentTime)
+        } else {
+            val lastTime = localStorageInteractor.getDataFromSharedPref(
+                key = TIME_BOX_KEY,
+                defaultValue = TimeBox()
+            ).currentTime
+            createNewTrainingPlan(lastTime - timeBox.currentTime)
+        }
+        saveNewTimeBox()
+    }
+
+    private fun createNewTrainingPlan(time: Int) {
+        timeBox.apply {
+            aboveTime = (time * 0.88).toInt()
+            currentTime = (time * 0.75).toInt()
+            belowTime = time + 2
+        }
+    }
+
+    private fun fixAndSaveTrainingPlan() {
+        val lastSavedTimeBox = localStorageInteractor.getDataFromSharedPref(
+            key = TIME_BOX_KEY,
+            defaultValue = TimeBox()
+        )
+        timeBox.apply {
+            aboveTime = lastSavedTimeBox.belowTime
+            currentTime = lastSavedTimeBox.aboveTime
+            belowTime = lastSavedTimeBox.currentTime
+        }
+        saveNewTimeBox()
+    }
+
+    private fun saveNewTimeBox() {
+        localStorageInteractor.saveDataInSharedPref(
+            key = TIME_BOX_KEY,
+            data = timeBox,
+        )
+    }
+
+    private fun startRecoveryTimer(newTrainingStage: Boolean) {
         recoveryInteractor.saveDataInSharedPref(
             key = COMPLETION_STATUS_KEY,
             data = CompletionStatus(
                 outcome = timeBox.currentTime,
                 lastEndTime = (System.currentTimeMillis() / 1000).toInt(),
-                newWorkoutStage = true
+                newTrainingStage = newTrainingStage
             )
         )
         checkTrainingAvailable()
     }
 
-    private fun showTimer() {
-        TODO("Not yet implemented")
-    }
-
-    private fun visibilityDoneMark() {
-        TODO("Not yet implemented")
-    }
-
-    fun onLongPress() {
-        localStorageInteractor.clearPreferencesByKey(key = TIME_BOX_KEY)
-        timeBox = TimeBox()
-    }
-
     companion object {
         private const val COMPLETION_STATUS_KEY = "completion_status_key"
-        //private const val STOP_BTN_VISIBILITY_KEY = "stop_btn_visibility_pref"
         private const val TIME_BOX_KEY = "time_box_preferences"
     }
 }

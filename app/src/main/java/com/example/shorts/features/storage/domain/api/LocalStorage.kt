@@ -1,4 +1,4 @@
-package com.example.shorts.features.shared_preferences.domain.api
+package com.example.shorts.features.storage.domain.api
 
 interface LocalStorage {
 

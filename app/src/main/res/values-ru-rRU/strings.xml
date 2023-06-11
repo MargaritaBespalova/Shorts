@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="restore_energy">Восстановите свою энергию</string>
+    <string name="start">Давай начнем!</string>
+    <string name="stop">Стоп</string>
+    <string name="done">Сделано!</string>
+    <string name="greeting">С возвращением в команду!</string>
+    <string name="do_it">Отжимайся</string>
+    <string name="stay">Удерживай планку</string>
+    <string name="need_rest">Нужен отдых</string>
 </resources>

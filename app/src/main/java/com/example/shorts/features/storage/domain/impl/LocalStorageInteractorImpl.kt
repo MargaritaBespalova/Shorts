@@ -1,9 +1,8 @@
-package com.example.shorts.features.shared_preferences.domain.impl
+package com.example.shorts.features.storage.domain.impl
 
 
-import com.example.shorts.features.shared_preferences.domain.api.LocalStorage
-import com.example.shorts.features.shared_preferences.domain.api.LocalStorageInteractor
-import com.example.shorts.model.domain.TimeBox
+import com.example.shorts.features.storage.domain.api.LocalStorage
+import com.example.shorts.features.storage.domain.api.LocalStorageInteractor
 
 class LocalStorageInteractorImpl(
     private val localStorage: LocalStorage

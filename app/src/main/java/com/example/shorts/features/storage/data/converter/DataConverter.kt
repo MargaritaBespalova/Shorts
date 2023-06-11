@@ -1,4 +1,4 @@
-package com.example.shorts.features.shared_preferences.data.converter
+package com.example.shorts.features.storage.data.converter
 
 
 interface DataConverter {

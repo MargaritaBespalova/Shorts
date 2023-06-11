@@ -1,8 +1,8 @@
-package com.example.shorts.features.shared_preferences.data
+package com.example.shorts.features.storage.data
 
 import android.content.SharedPreferences
-import com.example.shorts.features.shared_preferences.data.converter.DataConverter
-import com.example.shorts.features.shared_preferences.domain.api.LocalStorage
+import com.example.shorts.features.storage.data.converter.DataConverter
+import com.example.shorts.features.storage.domain.api.LocalStorage
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write

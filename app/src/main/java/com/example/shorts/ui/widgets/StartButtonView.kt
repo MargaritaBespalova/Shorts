@@ -1,6 +1,5 @@
 package com.example.shorts.ui.widgets
 
-import android.os.Handler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,47 +10,46 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shorts.R
-import com.example.shorts.model.domain.TimeBox
+import com.example.shorts.features.storage.domain.model.TimeBox
 import com.example.shorts.ui.theme.Orange
+import com.example.shorts.ui.theme.best_bold
+import com.example.shorts.ui.theme.best_italic
 import com.example.shorts.ui.view_model.MainViewModel
-import com.example.shorts.utils.DELAY_1000
 
 @Composable
 fun StartButton(
     viewModel: MainViewModel,
-    handler: Handler,
-    showStopButton: Boolean,
     timeBox: TimeBox,
     recoverTime: String,
     checkIconState: Float,
+    startPhrase: String
 ) {
     Column(
         modifier = Modifier.padding(32.dp)
     ) {
         Card(
-            modifier = Modifier.clickable { viewModel.startCountUpTrainingTime() },
+            modifier = Modifier.clickable { viewModel.startTraining() },
             shape = RoundedCornerShape(10.dp),
             elevation = 15.dp,
         ) {
             Box(
                 modifier = Modifier.background(
-                if (timeBox.currentTime % 8 in (0..1))
-                    Orange
-                else
-                    Color.Cyan)
+                    if (timeBox.currentTime % 8 == 7) Orange
+                    else Color.Cyan)
             ) {
                 Row(
                     modifier = Modifier
@@ -64,25 +62,24 @@ fun StartButton(
                         verticalArrangement = Arrangement.SpaceBetween,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(text = "${timeBox.aboveTime}", color = Color.DarkGray, fontSize = 13.sp)
-                        Text(text = "${timeBox.currentTime}", fontSize = 17.sp)
-                        Text(text = "${timeBox.belowTime}", color = Color.DarkGray, fontSize = 13.sp)
+                        Text(text = "${timeBox.aboveTime}", color = Color.DarkGray, fontSize = 13.sp, fontFamily = best_bold)
+                        Text(text = "${timeBox.currentTime}", fontSize = 19.sp, fontFamily = best_bold)
+                        Text(text = "${timeBox.belowTime}", color = Color.DarkGray, fontSize = 13.sp, fontFamily = best_bold)
                     }
-                    Text(text = timeBox.text, fontSize = 24.sp)
-//                    Image(
-//                        painter = painterResource(id = R.drawable.checked),
-//                        contentDescription = "check",
-//                        modifier = Modifier.size(32.dp),
-//                        alignment = Alignment.CenterEnd,
-//                    )
+                    Text(
+                        text = startPhrase,
+                        modifier = Modifier.widthIn(max = 200.dp),
+                        style = TextStyle.Default,
+                        fontSize = if (startPhrase.length > 14) 19.sp else 22.sp,
+                        fontFamily = best_bold,
+                        maxLines = 1,
+                    )
                     Image(
                         painter = painterResource(id = R.drawable.checked),
                         contentDescription = "check",
                         modifier = Modifier
                             .size(32.dp)
-                            .graphicsLayer {
-                                this.alpha = checkIconState
-                            },
+                            .graphicsLayer { alpha = checkIconState },
                         alignment = Alignment.CenterEnd,
                     )
                 }
@@ -90,45 +87,4 @@ fun StartButton(
         }
         RecoverTimer(time = recoverTime)
     }
-}
-
-
-private fun onClickStart(
-    handler: Handler,
-    clickEnable: MutableState<Boolean>,
-    timeBox: MutableState<TimeBox>,
-) {
-    //clickEnable.value = false
-    val aboveTemp = timeBox.value.aboveTime
-    val currentTemp = timeBox.value.currentTime
-    val belowTemp = timeBox.value.belowTime
-    handler.post(object : Runnable {
-
-        override fun run() {
-            if (timeBox.value.currentTime != 0) {
-                timeBox.value = timeBox.value.copy(currentTime = timeBox.value.currentTime - 1)
-                handler.postDelayed(this, DELAY_1000)
-            }
-            else if (currentTemp > aboveTemp && currentTemp > belowTemp) {
-                handler.removeCallbacksAndMessages(null)
-                timeBox.value = timeBox.value.copy(
-                    aboveTime = (currentTemp * 0.9).toInt(),
-                    currentTime = (currentTemp * 0.8).toInt(),
-                    belowTime = currentTemp + 3,
-                )
-                //clickEnable.value = true
-                //App.instance.timestamps.addTimestamps(timeBox.value)
-            }
-            else {
-                handler.removeCallbacksAndMessages(null)
-                timeBox.value = timeBox.value.copy(
-                    aboveTime = timeBox.value.belowTime,
-                    currentTime = timeBox.value.aboveTime,
-                    belowTime = currentTemp,
-                )
-                //clickEnable.value = true
-                //App.instance.timestamps.addTimestamps(timeBox.value)
-            }
-        }
-    })
 }

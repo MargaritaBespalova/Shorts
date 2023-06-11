@@ -1,10 +1,10 @@
 package com.example.shorts.di
 
 import androidx.appcompat.app.AppCompatActivity
-import com.example.shorts.features.shared_preferences.data.LocalStorageImpl
-import com.example.shorts.features.shared_preferences.data.converter.DataConverter
-import com.example.shorts.features.shared_preferences.data.converter.GsonDataConverter
-import com.example.shorts.features.shared_preferences.domain.api.LocalStorage
+import com.example.shorts.features.storage.data.LocalStorageImpl
+import com.example.shorts.features.storage.data.converter.DataConverter
+import com.example.shorts.features.storage.data.converter.GsonDataConverter
+import com.example.shorts.features.storage.domain.api.LocalStorage
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

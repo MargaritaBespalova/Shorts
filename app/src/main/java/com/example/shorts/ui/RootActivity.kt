@@ -1,4 +1,4 @@
-package com.example.shorts.ui.activity
+package com.example.shorts.ui
 
 import android.os.Bundle
 import android.os.Handler
@@ -18,7 +18,7 @@ import com.example.shorts.ui.widgets.StopButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
-class MainActivity : ComponentActivity() {
+class RootActivity : ComponentActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
     private val viewModel: MainViewModel by viewModel { parametersOf(handler) }
@@ -30,13 +30,14 @@ class MainActivity : ComponentActivity() {
                 val showStopButton = viewModel.stopButtonState
                 val time = viewModel.recoverTime
                 val checkIconState = viewModel.checkIconState
+                val startPhrase = viewModel.startPhrase
                 Background()
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.SpaceEvenly,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    StartButton(viewModel, handler, showStopButton, timeBox, time, checkIconState)
+                    StartButton(viewModel, timeBox, time, checkIconState, startPhrase)
                     StopButton(showStopButton,viewModel)
                 }
             }
