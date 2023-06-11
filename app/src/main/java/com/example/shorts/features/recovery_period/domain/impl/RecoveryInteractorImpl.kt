@@ -28,7 +28,7 @@ class RecoveryInteractorImpl(
     }
 
     companion object {
-        private const val BIG_RECOVER_TIME = 3//144000
-        private const val NORMAL_RECOVER_TIME = 3//72000
+        private const val BIG_RECOVER_TIME = 144000
+        private const val NORMAL_RECOVER_TIME = 72000
     }
 }
