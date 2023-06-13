@@ -59,7 +59,7 @@ class MainViewModel(
 
     fun getText(): String {
         return if (timeBox.firstStart) application.getString(R.string.stop)
-        else application.getString(R.string.need_rest)
+        else application.getString(R.string.maxed_out)
     }
 
     private fun isTrainingDone(done: Boolean) {
@@ -124,7 +124,7 @@ class MainViewModel(
     }
 
     private fun modifyPrompt(time: Int): String {
-        return if (time % 8 == 7) application.getString(R.string.do_it)
+        return if (time % 8 in (6..7)) application.getString(R.string.do_it)
         else application.getString(R.string.stay)
     }
 

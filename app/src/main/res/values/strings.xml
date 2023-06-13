@@ -3,9 +3,9 @@
     <string name="restore_energy">Restore your energy</string>
     <string name="start">Let\'s begin!</string>
     <string name="stop">Stop</string>
-    <string name="need_rest">Need rest</string>
+    <string name="maxed_out">Maxed out</string>
     <string name="done">Well done!</string>
-    <string name="do_it">Do push-ups</string>
+    <string name="do_it">Do push-up</string>
     <string name="stay">Hold the plank</string>
     <string name="greeting">Welcome back to the gang!</string>
 </resources>
